@@ -105,12 +105,12 @@ TOOL_INFOS = []
 # The following code enables a python code interpreter tool using the system.ai.python_exec UDF.
 
 # TODO: Add additional tools
-UC_TOOL_NAMES = ["system.ai.python_exec"]
-
-uc_function_client = get_uc_function_client()
-uc_toolkit = UCFunctionToolkit(function_names=UC_TOOL_NAMES)
-for tool_spec in uc_toolkit.tools:
-    TOOL_INFOS.append(create_tool_info(tool_spec))
+# Temporarily disable Python exec tool due to MLflow configuration issues
+# UC_TOOL_NAMES = ["system.ai.python_exec"]
+# uc_function_client = get_uc_function_client()
+# uc_toolkit = UCFunctionToolkit(function_names=UC_TOOL_NAMES)
+# for tool_spec in uc_toolkit.tools:
+#     TOOL_INFOS.append(create_tool_info(tool_spec))
 
 
 # Use Databricks vector search indexes as tools

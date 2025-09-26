@@ -1,7 +1,6 @@
 ---
-globs: pyproject.toml,requirements.txt,**/pyproject.toml
+alwaysApply: false
 ---
-
 # UV Workflow for Python Development
 
 ## Environment Setup
