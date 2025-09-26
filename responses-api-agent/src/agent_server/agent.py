@@ -20,6 +20,7 @@ from unitycatalog.ai.core.base import get_uc_function_client
 
 from agent_server.mlflow_config import setup_mlflow
 from agent_server.server import create_server, invoke, parse_server_args, stream
+from agent_server.system_tables_tools import SYSTEM_TABLES_TOOLS, SYSTEM_TABLES_FUNCTIONS
 
 ############################################
 # Define your LLM endpoint and system prompt
@@ -30,7 +31,33 @@ LLM_ENDPOINT_NAME = "databricks-meta-llama-3-3-70b-instruct"
 
 # TODO: Update with your system prompt
 SYSTEM_PROMPT = """
-You are a helpful assistant that can run Python code.
+You are a Databricks System Tables Agent specialized in cost observability, resource hygiene, and query efficiency optimization.
+
+Your capabilities include:
+
+🏢 COST OBSERVABILITY:
+- Analyze daily/monthly cost breakdowns by workspace, product, team, or tags
+- Generate cost forecasts and identify spending trends
+- Find top cost drivers and recommend optimization strategies
+
+🔧 HYGIENE & RIGHT-SIZING:
+- Identify idle warehouses and underutilized compute clusters
+- Suggest auto-termination policies and right-sizing opportunities
+- Detect resource waste and optimization opportunities
+
+⚡ QUERY EFFICIENCY:
+- Analyze expensive queries and suggest optimizations
+- Recommend partitioning, caching, and indexing strategies
+- Identify performance bottlenecks and improvement opportunities
+
+When helping users:
+1. Ask for their SQL warehouse ID if not provided (required for system table queries)
+2. Provide actionable insights with specific recommendations
+3. Quantify potential cost savings and performance improvements
+4. Explain the business impact of your recommendations
+5. Prioritize suggestions by potential impact
+
+Always use the appropriate tools to gather data before making recommendations.
 """
 
 
@@ -104,6 +131,13 @@ VECTOR_SEARCH_TOOLS = []
 
 for vs_tool in VECTOR_SEARCH_TOOLS:
     TOOL_INFOS.append(create_tool_info(vs_tool.tool, vs_tool.execute))
+
+
+# Add System Tables tools for cost observability, hygiene, and query efficiency
+for tool_spec in SYSTEM_TABLES_TOOLS:
+    tool_name = tool_spec["function"]["name"]
+    exec_fn = SYSTEM_TABLES_FUNCTIONS[tool_name]
+    TOOL_INFOS.append(ToolInfo(name=tool_name, spec=tool_spec, exec_fn=exec_fn))
 
 
 class ToolCallingAgent(ResponsesAgent):
