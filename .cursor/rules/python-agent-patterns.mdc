@@ -1,0 +1,56 @@
+---
+globs: **/agent_server/*.py,**/src/**/*.py
+---
+
+# Python Agent Development Patterns
+
+## Core Classes and Inheritance
+- Extend `ResponsesAgent` from `mlflow.pyfunc.ResponsesAgent` for all agent implementations
+- Use `ToolCallingAgent` pattern as shown in [agent.py](mdc:responses-api-agent/src/agent_server/agent.py)
+
+## Tool Implementation Pattern
+```python
+class ToolInfo(BaseModel):
+    name: str
+    spec: dict  # OpenAI tool specification format
+    exec_fn: Callable
+
+def create_tool_info(tool_spec, exec_fn_param: Optional[Callable] = None):
+    # Factory pattern for creating tools
+```
+
+## Required Decorators
+- Use `@invoke()` decorator for non-streaming endpoints
+- Use `@stream()` decorator for streaming endpoints  
+- Use `@mlflow.trace(span_type=SpanType.TOOL)` for tool execution tracing
+- Use `@mlflow.trace(span_type=SpanType.LLM)` for LLM calls
+
+## Agent Implementation Requirements
+1. Implement `predict(request: ResponsesAgentRequest) -> ResponsesAgentResponse`
+2. Implement `predict_stream(request: ResponsesAgentRequest) -> Generator[ResponsesAgentStreamEvent, None, None]`
+3. Initialize with LLM endpoint and tools list
+4. Use `WorkspaceClient()` for Databricks SDK operations
+
+## Tool Registration Pattern
+```python
+TOOL_INFOS = []
+# Unity Catalog functions
+UC_TOOL_NAMES = ["system.ai.python_exec"]
+uc_toolkit = UCFunctionToolkit(function_names=UC_TOOL_NAMES)
+for tool_spec in uc_toolkit.tools:
+    TOOL_INFOS.append(create_tool_info(tool_spec))
+
+# Vector search tools
+for vs_tool in VECTOR_SEARCH_TOOLS:
+    TOOL_INFOS.append(create_tool_info(vs_tool.tool, vs_tool.execute))
+```
+
+## MLflow Integration
+- Always call `mlflow.openai.autolog()` before agent initialization
+- Use `setup_mlflow()` from [mlflow_config.py](mdc:responses-api-agent/src/agent_server/mlflow_config.py)
+- Trace all tool calls and LLM interactions
+
+## Server Setup
+- Use `create_server("agent/v1/responses")` pattern
+- Export `app = agent_server.app` for uvicorn
+- Use `parse_server_args()` for command line argument handling

@@ -1,0 +1,80 @@
+---
+globs: pyproject.toml,requirements.txt,**/pyproject.toml
+---
+
+# UV Workflow for Python Development
+
+## Environment Setup
+- **Virtual Environment**: Use `uv venv` to create isolated Python environments
+- **Dependency Management**: Use `uv pip install -e .` for editable installs
+- **Python Version**: Automatically uses Python 3.11+ for compatibility
+
+## Development Commands
+
+### Backend Server (Python/FastAPI)
+```bash
+# Navigate to agent directory
+cd responses-api-agent
+
+# Create and activate virtual environment
+uv venv
+source .venv/bin/activate
+
+# Install dependencies in editable mode
+uv pip install -e .
+
+# Start the agent server
+python -m agent_server.agent
+# OR
+python -c "from agent_server.agent import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=8000)"
+```
+
+### Frontend Development (React/TypeScript)
+```bash
+# Navigate to UI directory
+cd responses-api-agent/ui
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+## Server Endpoints
+- **Backend API**: `http://localhost:8000`
+  - Health check: `GET /health`
+  - Agent endpoint: `POST /invocations`
+  - Static UI: `GET /` (serves built React app)
+- **Frontend Dev Server**: `http://localhost:3001`
+  - Hot reload enabled
+  - Proxy to backend API
+
+## Testing Workflow
+1. **Start Backend**: Run Python server with uv environment
+2. **Start Frontend**: Run npm dev server for development
+3. **Test Integration**: Frontend proxies to backend API
+4. **Health Check**: Verify both servers are responding
+
+## Production Build
+```bash
+# Build frontend for production
+cd responses-api-agent/ui
+npm run build
+
+# Backend serves static files from ui/static/
+# No additional build step needed for Python
+```
+
+## Key Benefits of UV
+- **Fast dependency resolution**: Much faster than pip
+- **Automatic virtual environments**: No need to manage venv manually
+- **Editable installs**: `-e` flag for development mode
+- **Lock file support**: Reproducible builds
+- **Python version management**: Automatic Python version selection
+
+## Troubleshooting
+- **Import errors**: Ensure virtual environment is activated
+- **Port conflicts**: Backend on 8000, frontend dev on 3001
+- **Dependency issues**: Use `uv pip install -e .` to reinstall
+- **Server not starting**: Check Python path and virtual environment activation

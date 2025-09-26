@@ -25,8 +25,8 @@ from agent_server.server import create_server, invoke, parse_server_args, stream
 # Define your LLM endpoint and system prompt
 ############################################
 # TODO: Replace with your model serving endpoint
-LLM_ENDPOINT_NAME = "databricks-claude-3-7-sonnet"
-# LLM_ENDPOINT_NAME = "databricks-meta-llama-3-3-70b-instruct"
+# LLM_ENDPOINT_NAME = "databricks-claude-3-7-sonnet"
+LLM_ENDPOINT_NAME = "databricks-meta-llama-3-3-70b-instruct"
 
 # TODO: Update with your system prompt
 SYSTEM_PROMPT = """

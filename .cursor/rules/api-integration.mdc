@@ -1,0 +1,67 @@
+---
+description: API integration patterns for agent communication
+---
+
+# Agent API Integration Patterns
+
+## Core Endpoints
+- **POST `/invocations`**: Main agent endpoint (streaming and non-streaming)
+- **GET `/health`**: Health check for frontend connectivity
+- **GET `/`**: Serves the React UI
+- **Static assets**: Served from `/assets/` and `/databricks.svg`
+
+## Request/Response Formats
+
+### ResponsesAgent API
+- **Request**: `ResponsesAgentRequest` with `input` array of message objects
+- **Response**: `ResponsesAgentResponse` with `output` array of response items
+- **Streaming**: `ResponsesAgentStreamEvent` objects via Server-Sent Events
+
+### Streaming Protocol
+```javascript
+// Enable streaming by adding stream: true to request
+const request = { ...baseRequest, stream: true };
+
+// SSE format: data: {JSON}\n\n
+// Final message: data: [DONE]\n\n
+```
+
+## Client Implementation Pattern
+```typescript
+class AgentApiClient {
+  private baseUrl: string; // Auto-detected based on environment
+  
+  async sendMessage(request: ResponsesAgentRequest): Promise<ResponsesResponse>
+  async *streamMessage(request: ResponsesAgentRequest): AsyncGenerator<ResponseOutputItem>
+  async healthCheck(): Promise<boolean>
+}
+```
+
+## Error Handling
+- HTTP errors throw with status codes and messages
+- Validation errors logged but allow graceful degradation
+- Stream parsing errors handled per-chunk
+- Timeout handling for health checks (5 seconds)
+
+## Authentication & Configuration
+- Uses Databricks workspace authentication via `WorkspaceClient()`
+- LLM endpoint configured via `LLM_ENDPOINT_NAME` constant
+- Unity Catalog functions accessed via `get_uc_function_client()`
+- MLflow tracing automatically enabled
+
+## Tool Execution Flow
+1. LLM generates tool calls in OpenAI format
+2. Agent validates and executes tools via `exec_fn`
+3. Tool results added to message history
+4. Process repeats until completion or max iterations
+
+## Development vs Production
+- **Development**: `baseUrl = "http://localhost:8000"`
+- **Production**: `baseUrl = window.location.origin`
+- Auto-detection based on URL hostname
+- Static file serving handled by FastAPI in production
+
+## Trace Integration
+- Set `databricks_options.return_trace: true` to get MLflow trace data
+- Traces returned in response under `databricks_output.trace`
+- All tool calls and LLM interactions automatically traced

@@ -1,0 +1,40 @@
+---
+alwaysApply: true
+---
+
+# Agents on Apps Project Architecture
+
+This is an experimental Databricks project for deploying agents on Databricks Apps instead of Model Serving.
+
+## Project Structure
+
+The repository contains two main agent implementations:
+
+### 1. responses-api-agent
+- **Backend**: Python FastAPI server in [responses-api-agent/src/agent_server/](mdc:responses-api-agent/src/agent_server/)
+- **Frontend**: React/TypeScript UI in [responses-api-agent/ui/](mdc:responses-api-agent/ui/)
+- **Main entry point**: [responses-api-agent/src/agent_server/agent.py](mdc:responses-api-agent/src/agent_server/agent.py)
+- **Server**: [responses-api-agent/src/agent_server/server.py](mdc:responses-api-agent/src/agent_server/server.py)
+
+### 2. non-conversational-agent  
+- **Backend only**: Python implementation in [non-conversational-agent/src/agent_server/](mdc:non-conversational-agent/src/agent_server/)
+- **Main entry point**: [non-conversational-agent/src/agent_server/agent.py](mdc:non-conversational-agent/src/agent_server/agent.py)
+
+## Key Features
+- Built-in MLflow tracing and logging
+- Async FastAPI server with `/invocations` endpoint
+- Streaming and non-streaming responses
+- Unity Catalog function toolkit integration
+- Vector search retriever tools
+- React UI with real-time chat interface
+
+## Development Flow
+1. Agents are implemented by extending `ResponsesAgent` class
+2. Tools are registered via `ToolInfo` objects and `TOOL_INFOS` list
+3. Server decorators `@invoke()` and `@stream()` register endpoints
+4. Frontend communicates via `/invocations` endpoint
+
+## Configuration Files
+- [pyproject.toml](mdc:responses-api-agent/pyproject.toml): Python dependencies
+- [package.json](mdc:responses-api-agent/ui/package.json): Frontend dependencies  
+- [app.yaml](mdc:responses-api-agent/app.yaml): Databricks App deployment config

@@ -1,0 +1,64 @@
+---
+globs: app.yaml,pyproject.toml,package.json,requirements.txt,*.config.*
+---
+
+# Deployment and Configuration Patterns
+
+## Databricks App Deployment
+- **Configuration**: [app.yaml](mdc:responses-api-agent/app.yaml) defines the Databricks App
+- **Git-based versioning**: MLflow git-backed logged models supported
+- **OBO Authentication**: Workspace client auth via thread context variables
+- **Resource Access**: UC Functions, Vector Search, UC Connections as app resources
+
+## Python Dependencies
+- **Package Manager**: Poetry via [pyproject.toml](mdc:responses-api-agent/pyproject.toml)
+- **Runtime Requirements**: [requirements.txt](mdc:responses-api-agent/requirements.txt) for production
+- **Key Dependencies**:
+  - `mlflow`: Agent framework and tracing
+  - `databricks-sdk`: Workspace client
+  - `databricks-openai`: UC toolkit and vector search
+  - `fastapi`: Web server framework
+  - `unitycatalog`: AI function client
+
+## Frontend Build Configuration  
+- **Build Tool**: Vite via [vite.config.ts](mdc:responses-api-agent/ui/vite.config.ts)
+- **TypeScript**: Multiple config files for different contexts
+- **Output**: Built to `ui/static/` directory for FastAPI serving
+- **Development**: Hot reload and proxy configuration
+
+## Environment-Specific Settings
+- **Local Development**: 
+  - Backend: `localhost:8000`
+  - Frontend: Vite dev server with proxy
+  - MLflow: Local tracking
+  
+- **Databricks Apps**:
+  - Auto-detection of environment
+  - Workspace-based authentication  
+  - MLflow experiment as app resource
+  - Static file serving from FastAPI
+
+## Server Configuration
+- **Host**: `0.0.0.0` (all interfaces)  
+- **Port**: Default 8000, configurable via `--port`
+- **Workers**: Default 1, configurable via `--workers`
+- **Reload**: Development flag via `--reload`
+- **CORS**: Enabled for all origins in development
+
+## MLflow Integration
+- **Auto-logging**: `mlflow.openai.autolog()` for LLM calls
+- **Tracing**: In-memory trace manager for development
+- **Experiments**: Configurable via [mlflow_config.py](mdc:responses-api-agent/src/agent_server/mlflow_config.py)
+- **Model Registration**: Support for git-based model versioning
+
+## Security Considerations
+- **Authentication**: Databricks workspace OAuth
+- **Tool Permissions**: Unity Catalog function execution rights
+- **Vector Search**: Index access permissions
+- **App Scopes**: MCP (Model, Compute, Pipelines) scope required
+
+## Performance Settings
+- **Async Server**: FastAPI with asyncio support
+- **Streaming**: Server-Sent Events for real-time responses  
+- **Connection Pooling**: OpenAI client connection management
+- **Trace Sampling**: Configurable MLflow trace sampling rates

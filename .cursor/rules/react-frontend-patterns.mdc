@@ -1,0 +1,55 @@
+---
+globs: **/ui/src/**/*.tsx,**/ui/src/**/*.ts
+---
+
+# React Frontend Development Patterns
+
+## Project Structure
+- **Components**: Organized in [src/components/](mdc:responses-api-agent/ui/src/components/) with sub-folders:
+  - `agents/`: Agent-specific components like [AgentAvatar.tsx](mdc:responses-api-agent/ui/src/components/agents/AgentAvatar.tsx)
+  - `chat/`: Chat interface components
+  - `common/`: Reusable UI components
+- **API Layer**: [src/api/client.ts](mdc:responses-api-agent/ui/src/api/client.ts) 
+- **Hooks**: Custom hooks in [src/hooks/](mdc:responses-api-agent/ui/src/hooks/)
+- **Schemas**: Type definitions and validation in [src/schemas/](mdc:responses-api-agent/ui/src/schemas/)
+
+## Technology Stack
+- React 18 with TypeScript
+- Vite for build tooling
+- TanStack Query for data fetching
+- Databricks Design System components
+- Zod for runtime type validation
+
+## API Integration Patterns
+- Use `AgentApiClient` class from [client.ts](mdc:responses-api-agent/ui/src/api/client.ts)
+- Support both streaming and non-streaming requests
+- Base URL auto-detection (localhost vs production)
+- Server-Sent Events (SSE) for streaming responses
+
+## Component Patterns
+1. **Chat Container**: Main chat interface in [ChatContainer.tsx](mdc:responses-api-agent/ui/src/components/chat/ChatContainer.tsx)
+2. **Message Components**: Separate components for different message types
+3. **Streaming Support**: Handle real-time message updates
+4. **Loading States**: Use `LoadingIndicator` component for async operations
+
+## Hook Usage
+- Use `useStreamingChat()` from [useAgentApi.ts](mdc:responses-api-agent/ui/src/hooks/useAgentApi.ts) for chat functionality
+- TanStack Query for server state management
+- Custom hooks for agent interactions
+
+## Styling Approach
+- Use Databricks Design System components where possible
+- Inline styles for layout and positioning
+- Responsive design patterns
+
+## Type Safety
+- Define interfaces for all API requests/responses
+- Use Zod schemas for runtime validation
+- Import types from [validation.ts](mdc:responses-api-agent/ui/src/schemas/validation.ts)
+- Handle streaming data with proper TypeScript types
+
+## Error Handling
+- Validate API responses with Zod schemas
+- Graceful degradation for validation failures
+- Console logging for debugging stream events
+- Health check endpoint integration

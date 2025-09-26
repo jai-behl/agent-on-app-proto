@@ -1,0 +1,54 @@
+---
+description: Debugging and development workflow guidance
+---
+
+# Debugging and Development Workflow
+
+## Local Development Setup
+1. **Backend**: Run `python -m agent_server.agent` from project root
+2. **Frontend**: Run `npm run dev` from `ui/` directory  
+3. **Default ports**: Backend on 8000, Frontend dev server varies
+4. **Health check**: GET `/health` returns `{"status": "healthy"}`
+
+## Key Development Files
+- [agent.py](mdc:responses-api-agent/src/agent_server/agent.py): Main agent implementation
+- [server.py](mdc:responses-api-agent/src/agent_server/server.py): FastAPI server setup
+- [client.ts](mdc:responses-api-agent/ui/src/api/client.ts): Frontend API client
+- [useAgentApi.ts](mdc:responses-api-agent/ui/src/hooks/useAgentApi.ts): React hooks for agent interaction
+
+## Common Configuration Points
+- **LLM Endpoint**: `LLM_ENDPOINT_NAME` in [agent.py](mdc:responses-api-agent/src/agent_server/agent.py)
+- **System Prompt**: `SYSTEM_PROMPT` constant  
+- **Tools**: `UC_TOOL_NAMES` and `VECTOR_SEARCH_TOOLS` lists
+- **Server Options**: Command line args via `parse_server_args()`
+
+## Debugging Patterns
+### Backend Debugging
+- MLflow auto-tracing captures all LLM and tool calls
+- Server logs include request/response sizes, durations, function names
+- Use `mlflow.start_span()` for custom tracing
+- Validation errors provide detailed type mismatch information
+
+### Frontend Debugging  
+- Console logs for streaming events with timestamps
+- SSE parsing errors logged with raw event data
+- React Query DevTools for API state inspection
+- Zod validation errors logged but don't break UI
+
+### Common Issues
+1. **Tool execution failures**: Check Unity Catalog permissions and function availability
+2. **Streaming connection issues**: Verify CORS headers and SSE format compliance  
+3. **LLM endpoint errors**: Confirm model serving endpoint name and permissions
+4. **UI build issues**: Check static file serving configuration
+
+## Testing Patterns
+- [test_agent.py](mdc:responses-api-agent/test_agent.py): Basic agent functionality tests
+- [evaluate_agent.py](mdc:responses-api-agent/src/agent_server/evaluate_agent.py): Agent evaluation utilities
+- Frontend: Health checks before sending requests
+- Manual testing via chat UI or direct API calls
+
+## Performance Monitoring
+- All requests logged with timing information
+- Stream chunk counts tracked
+- Response sizes monitored
+- MLflow traces provide detailed execution timing
